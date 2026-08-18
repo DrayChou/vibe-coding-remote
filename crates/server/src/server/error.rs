@@ -28,7 +28,7 @@ impl AppError {
     pub(super) fn input_failed(error: InputError) -> Self {
         match error {
             InputError::UnsupportedCode(code) => Self::unsupported_code(code),
-            #[cfg(not(target_os = "windows"))]
+            #[cfg(not(any(target_os = "windows", target_os = "macos")))]
             InputError::UnsupportedPlatform => Self {
                 status: StatusCode::INTERNAL_SERVER_ERROR,
                 message: "desktop input injection is not implemented on this platform yet"

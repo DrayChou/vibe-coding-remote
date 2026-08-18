@@ -44,14 +44,17 @@ pub(super) async fn execute_action(
         tracing::warn!(error = %error, "rejected invalid action");
         AppError::bad_request(error)
     })?;
-    let debug_action = format!("{action:?}");
+    let action_kind = match &action {
+        crate::protocol::ServerAction::InputText { .. } => "input-text",
+        crate::protocol::ServerAction::KeySequence { .. } => "key-sequence",
+    };
 
     input::execute_action(action).map_err(|error| {
-        tracing::error!(error = %error, action = %debug_action, "failed to execute action");
+        tracing::error!(error = %error, action = action_kind, "failed to execute action");
         AppError::input_failed(error)
     })?;
 
-    tracing::info!(action = %debug_action, "executed action");
+    tracing::info!(action = action_kind, "executed action");
 
     Ok(Json(ApiResponse { ok: true }))
 }

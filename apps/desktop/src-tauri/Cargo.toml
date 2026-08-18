@@ -1,0 +1,31 @@
+[package]
+name = "vibe-coding-remote-desktop"
+version = "0.1.2"
+description = "Windows and macOS management application for Vibe Coding Remote."
+authors = ["Vibe Coding Remote contributors"]
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "vibe_coding_remote_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "vibe-coding-remote-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+config.workspace = true
+local-ip-address.workspace = true
+qrcode.workspace = true
+serde.workspace = true
+tauri.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+vibe-coding-remote-server = { path = "../../../crates/server" }

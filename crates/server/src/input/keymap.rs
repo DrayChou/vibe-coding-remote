@@ -705,5 +705,9 @@ pub(super) fn resolve_key(code: Code) -> Result<MappedKey, InputError> {
 }
 
 pub(crate) fn supported_codes() -> Vec<Code> {
-    SUPPORTED_KEYS.iter().map(|mapped| mapped.code).collect()
+    SUPPORTED_KEYS
+        .iter()
+        .map(|mapped| mapped.code)
+        .filter(|code| crate::input::platform::supports_code(*code))
+        .collect()
 }

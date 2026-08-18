@@ -2,7 +2,7 @@ use crate::protocol::{
     ApiResponse, ImportPayload, KeyChord, ServerAction, ServerActionRequest,
     ServerCapabilitiesResponse, ServerCode,
 };
-use specta::Types;
+use specta::TypeCollection;
 use specta_typescript::{Exporter, Typescript};
 use thiserror::Error;
 
@@ -11,14 +11,12 @@ const TYPESCRIPT_PREAMBLE: &str =
 
 #[derive(Debug, Error)]
 pub(super) enum RenderTypescriptError {
-    #[error("failed to apply serde wire-format metadata to exported types: {0}")]
-    Serde(#[from] specta_serde::Error),
     #[error("failed to render TypeScript bindings: {0}")]
     Typescript(#[from] specta_typescript::Error),
 }
 
 pub(super) fn render_typescript_bindings() -> Result<String, RenderTypescriptError> {
-    let types = Types::default()
+    let types = TypeCollection::default()
         .register::<ApiResponse>()
         .register::<ImportPayload>()
         .register::<ServerCode>()
@@ -27,10 +25,35 @@ pub(super) fn render_typescript_bindings() -> Result<String, RenderTypescriptErr
         .register::<ServerAction>()
         .register::<ServerActionRequest>();
 
-    let resolved_types = specta_serde::apply(types)?;
     let bindings = Exporter::from(Typescript::default())
         .framework_prelude(TYPESCRIPT_PREAMBLE)
-        .export(&resolved_types)?;
+        .export(&types)?;
 
-    Ok(bindings)
+    Ok(preserve_server_code_alias(bindings))
+}
+
+fn preserve_server_code_alias(bindings: String) -> String {
+    let bindings = bindings
+        .replace("keys: string[]", "keys: ServerCode[]")
+        .replace("supported_codes: string[]", "supported_codes: ServerCode[]");
+
+    if bindings.contains("export type ServerCode = string;") {
+        bindings
+    } else {
+        format!("{bindings}\nexport type ServerCode = string;\n")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exported_bindings_keep_the_server_code_alias() {
+        let bindings = render_typescript_bindings().expect("bindings should render");
+
+        assert!(bindings.contains("keys: ServerCode[]"));
+        assert!(bindings.contains("supported_codes: ServerCode[]"));
+        assert!(bindings.contains("export type ServerCode = string;"));
+    }
 }

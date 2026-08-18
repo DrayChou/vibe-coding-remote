@@ -39,7 +39,9 @@ flowchart TD
     G --> G2[input/clipboard.rs]
     G --> G3[input/keyboard.rs]
     G --> G4[input/keymap.rs]
-    G --> G5[input/windows.rs]
+    G --> G5[input/platform.rs]
+    G5 --> G6[input/windows.rs]
+    G5 --> G7[input/macos.rs]
 
     D5 --> H[network.rs]
     D5 --> I[import_config.rs]
@@ -113,9 +115,15 @@ flowchart TD
   - modifier 排序
 - `input/keymap.rs`
   - `keyboard_types::Code -> 平台键描述`
+- `input/platform.rs`
+  - 选择当前操作系统后端
+  - 提供平台原生粘贴快捷键和 capability 过滤
 - `input/windows.rs`
   - Win32 `SendInput`
   - Windows 平台输入注入
+- `input/macos.rs`
+  - CoreGraphics `CGEvent`
+  - macOS 按键映射和辅助功能权限检查
 
 ### 辅助能力层
 
@@ -251,7 +259,9 @@ flowchart TD
     B --> C[input/clipboard.rs]
     B --> D[input/keyboard.rs]
     D --> E[input/keymap.rs]
-    D --> F[input/windows.rs]
+    D --> F[input/platform.rs]
+    F --> G[input/windows.rs]
+    F --> H[input/macos.rs]
 ```
 
 ### `input-text`
@@ -271,8 +281,10 @@ flowchart LR
     A[key-sequence] --> B[keyboard.rs]
     B --> C[遍历 sequence]
     C --> D[对每个 KeyChord 排序 modifier]
-    D --> E[keymap.rs 映射 Code]
-    E --> F[windows.rs -> SendInput]
+    D --> E[keymap.rs 校验 Code]
+    E --> F[platform.rs 选择后端]
+    F --> G[windows.rs -> SendInput]
+    F --> H[macos.rs -> CGEvent]
 ```
 
 ---
@@ -309,7 +321,7 @@ HTTP 映射统一收敛在：
 
 - 对外协议和内部执行边界已经分离
 - HTTP 层和输入层已经分层
-- Windows 平台细节已被压到 `input/windows.rs`
+- Windows/macOS 平台细节已分别收敛到 `input/windows.rs` 和 `input/macos.rs`
 - 类型导出、导入配置、二维码等辅助能力不再和请求处理代码混在一起
 - 共享 TypeScript 类型由 Rust 协议类型生成，而不是单独手写维护
 

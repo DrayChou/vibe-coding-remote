@@ -1,4 +1,4 @@
-use crate::{RuntimeOptions, import_config, network, qr};
+use crate::{RuntimeOptions, network};
 
 pub(super) fn log_startup_guide(options: &RuntimeOptions) {
     let host = options.host;
@@ -12,36 +12,17 @@ pub(super) fn log_startup_guide(options: &RuntimeOptions) {
     tracing::info!(url = %format!("http://127.0.0.1:{api_port}/api/action"), "action endpoint");
     tracing::info!("Bearer token required for /api/auth-check, /api/capabilities, and /api/action");
     tracing::info!("CORS enabled for cross-origin frontend clients");
-    log_import_guide(options, access_status);
+    log_import_guide(access_status);
 }
 
-fn log_import_guide(options: &RuntimeOptions, access_status: network::ImportEndpointStatus) {
+fn log_import_guide(access_status: network::ImportEndpointStatus) {
     match access_status {
         network::ImportEndpointStatus::Available { endpoint } => {
-            match import_config::ImportConfig::new(endpoint.clone(), options.auth_token.clone()) {
-                Ok(config) => {
-                    tracing::info!(endpoint = %config.payload.endpoint, "mobile import endpoint");
-                    tracing::warn!(
-                        import_url = %config.import_url,
-                        "mobile import URL contains the auth token; treat it as sensitive"
-                    );
-
-                    match qr::render_qr_text(&config.import_url) {
-                        Ok(qr_text) => {
-                            tracing::info!(
-                                "scan this QR code in the app to import the server config"
-                            );
-                            tracing::info!("\n{qr_text}");
-                        }
-                        Err(error) => {
-                            tracing::warn!(error = %error, "failed to render import QR code");
-                        }
-                    }
-                }
-                Err(error) => {
-                    tracing::warn!(error = %error, "failed to prepare import configuration");
-                }
-            }
+            tracing::info!(%endpoint, "mobile API endpoint");
+            tracing::info!(
+                "open the desktop management window to copy or scan the authenticated phone configuration"
+            );
+            tracing::info!("the authentication token and import QR are never written to logs");
         }
         network::ImportEndpointStatus::LoopbackOnly => {
             tracing::warn!("mobile import QR unavailable because the server is bound to localhost");

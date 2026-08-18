@@ -2,7 +2,7 @@ use crate::{
     input::{
         InputError,
         keymap::{self, MappedKey},
-        windows,
+        platform,
     },
     protocol::KeyChord,
 };
@@ -23,7 +23,7 @@ pub(super) fn send_key_chord(keys: &[Code]) -> Result<(), InputError> {
         .map(keymap::resolve_key)
         .collect::<Result<Vec<_>, _>>()?;
     let ordered = order_chord_keys(&resolved);
-    windows::send_key_chord(&ordered)
+    platform::send_key_chord(&ordered)
 }
 
 fn order_chord_keys(keys: &[MappedKey]) -> Vec<MappedKey> {

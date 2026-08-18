@@ -86,28 +86,27 @@ https://enximi.github.io/vibe-coding-remote/
 
 需要注意：
 
-- 这个在线页面本身是 HTTPS
-- 如果本地 `server` 还是纯 HTTP，浏览器通常会拦截跨协议请求
-- 所以更稳定的发布方式是：本地 `server` 也提供 HTTPS，或者通过 HTTPS 隧道暴露给手机浏览器
+- 正式 Desktop App 会把 Mobile Web 资源一起打包，并由同一个局域网 HTTP Server 提供页面和 API；手机直接打开管理页显示的局域网地址即可，避免 HTTPS 页面访问本地 HTTP API 的 mixed-content 问题。
+- GitHub Pages 仍可用于前端预览；如果 Pages 连接纯 HTTP 本地 Server，浏览器可能拦截跨协议请求，此时应改用 Desktop App 提供的本地手机页面。
 
 ## 平台现状
 
-当前“把内容真正输入到桌面焦点位置”这一层仍然是 Windows 优先实现。
+当前桌面输入主链支持 Windows 和 macOS：
 
-原因是桌面输入依赖：
+- Windows：系统剪贴板 + `Ctrl+V`，按键通过 Win32 `SendInput` 注入；
+- macOS：系统剪贴板 + `Command+V`，按键通过 CoreGraphics `CGEvent` 注入；
+- macOS 首次执行桌面动作时需要授予运行该服务的应用“辅助功能”权限；
+- Linux 仍可编译通用服务代码，但桌面输入注入尚未实现。
 
-- Win32 `SendInput`
-- Windows 焦点窗口输入
-- Windows 剪贴板
-
-不过前端已经重构成了 monorepo 结构，当前由同一套 React UI 支撑 Web 壳，后续也方便继续扩展其他客户端。
+当前保证的是“文本和已声明基础按键进入当前焦点位置”。前台应用识别、窗口/鼠标控制和 Agent 原生状态协议仍属于后续能力，不能仅凭输入主链可用就视为已经支持。
 
 ## 仓库结构
 
 ```text
 vibe-coding-remote/
 ├─ apps/
-│  ├─ web/                  # Web 壳：Vite dev server + 手机浏览器入口
+│  ├─ web/                  # 手机浏览器 / PWA 控制端
+│  └─ desktop/              # Windows / macOS Tauri 管理端
 ├─ packages/
 │  ├─ app/                  # 共享 React UI、状态模型、组件、样式
 ├─ crates/
@@ -117,9 +116,10 @@ vibe-coding-remote/
 
 这套结构的原则是：
 
-- `packages/app` 只关心产品 UI 和交互，不关心运行平台
-- `apps/web` 只做“壳”和平台桥接
-- `crates/server` 负责本地 API 与桌面输入执行
+- `packages/app` 只关心手机输入与遥控交互；
+- `apps/web` 提供手机浏览器 / PWA 壳；
+- `apps/desktop` 提供 Windows / macOS 管理窗口、托盘和系统权限入口；
+- `crates/server` 负责本地 API 与桌面输入执行，并由 Desktop App 同进程启动。
 
 ## 快速开始
 
@@ -160,19 +160,28 @@ https://你的电脑局域网IP:5173
 - `/api` 由 Vite 代理到 Rust `8765`
 - 如果本地不存在 `.cert/dev-cert.pem` 和 `.cert/dev-key.pem`，Vite 会回退为普通 HTTP 开发模式
 
-### 3. 构建独立桌面服务
+### 3. 启动桌面管理端
 
-```powershell
-just build-server
+```bash
+pnpm run dev:desktop
 ```
 
-这会构建 Rust release 版本地 API 服务。
+桌面管理端使用 Tauri 2，同一套代码支持 Windows 和 macOS。构建时会同时打包 `apps/web/dist`，桌面 Server 的根地址直接提供手机页面和 API。它负责：
 
-产物位于：
+- 同进程启动和重启 Rust Server；
+- 展示服务、局域网、端口和输入权限状态；
+- 保存监听地址与端口；
+- 复制手机连接地址和包含 Token 的完整配置；
+- Windows 系统托盘 / macOS 菜单栏；
+- 关闭窗口后继续后台运行，并可从托盘重新打开。
 
-```text
-target/release/vibe-coding-remote.exe
+正式构建：
+
+```bash
+pnpm run build:desktop
 ```
+
+macOS 产物位于 `target/release/bundle/macos/` 和 `target/release/bundle/dmg/`；Windows 构建会生成对应的安装产物。仍可使用 `just build-server` 单独构建无头 Rust Server。
 
 ## 运行模式
 
@@ -404,7 +413,8 @@ Vibe Coding 遥控器目前主要选择后者。
 - 多端共享更多平台桥接能力
 - 设备发现与配对
 - WebSocket 实时状态同步
-- macOS / Linux 支持
+- Linux 桌面输入支持
+- 前台应用 Profile 与遥控器交互模型，见 [`docs/REMOTE_CONTROL_REUSE.md`](docs/REMOTE_CONTROL_REUSE.md)
 
 ## License
 

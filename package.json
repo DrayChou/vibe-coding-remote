@@ -8,10 +8,12 @@
   ],
   "scripts": {
     "dev:web": "pnpm --filter @vibe-coding-remote/web run dev -- --host",
-    "typecheck": "pnpm -w exec tsc -p packages/app/tsconfig.json --noEmit && pnpm --filter @vibe-coding-remote/web run typecheck",
+    "dev:desktop": "pnpm --filter @vibe-coding-remote/desktop tauri dev",
+    "typecheck": "pnpm -w exec tsc -p packages/app/tsconfig.json --noEmit && pnpm --filter @vibe-coding-remote/web run typecheck && pnpm --filter @vibe-coding-remote/desktop run typecheck",
     "lint:frontend": "pnpm exec biome check apps packages package.json",
     "format:frontend": "pnpm exec biome check --write apps packages package.json",
-    "build:web": "pnpm --filter @vibe-coding-remote/web run build"
+    "build:web": "pnpm --filter @vibe-coding-remote/web run build",
+    "build:desktop": "pnpm --filter @vibe-coding-remote/desktop tauri build"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",

@@ -5,6 +5,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
     path::PathBuf,
 };
+
 use thiserror::Error;
 
 const DEFAULT_CONFIG_PATH: &str = "config.toml";

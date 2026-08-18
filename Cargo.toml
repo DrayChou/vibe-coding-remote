@@ -1,5 +1,6 @@
 [workspace]
 members = [
+  "apps/desktop/src-tauri",
   "crates/server"
 ]
 resolver = "2"
@@ -18,14 +19,16 @@ keyboard-types = { version = "0.8.3", features = ["serde"] }
 local-ip-address = "0.6"
 qrcode = "0.14"
 serde = { version = "1", features = ["derive"] }
-specta = { version = "2.0.0-rc.24", features = ["derive"] }
-specta-macros = { version = "2.0.0-rc.24", features = ["serde"] }
-specta-serde = "0.0.11"
-specta-typescript = "0.0.11"
+specta = { version = "2.0.0-rc.23", features = ["derive"] }
+specta-serde = "0.0.10"
+specta-typescript = "0.0.10"
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-build = { version = "2", features = [] }
 thiserror = "2"
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
-tower-http = { version = "0.6", features = ["cors"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "sync", "time"] }
+tower-http = { version = "0.6", features = ["cors", "fs"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 url = "2"
+uuid = { version = "1", features = ["v4"] }
 windows = { version = "0.62", features = ["Win32_UI_Input_KeyboardAndMouse"] }

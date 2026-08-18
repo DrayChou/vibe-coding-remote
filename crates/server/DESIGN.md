@@ -306,8 +306,11 @@ Windows 上的目标实现方式：
 
 当前平台现状：
 
-- Windows 已实现实际输入注入
-- 非 Windows 平台会编译通过，但动作执行会返回错误
+- Windows 使用 Win32 `SendInput`；
+- macOS 使用 CoreGraphics `CGEvent`，并要求“辅助功能”权限；
+- 文本输入在 Windows 使用 `Ctrl+V`，在 macOS 使用 `Command+V`；
+- `/api/capabilities` 只返回当前平台已映射的按键；
+- 其他平台可编译通用服务代码，但桌面输入动作会返回未支持错误。
 
 ---
 

@@ -1,0 +1,28 @@
+{
+  "name": "@vibe-coding-remote/desktop",
+  "private": true,
+  "version": "0.1.2",
+  "description": "Windows and macOS management application for Vibe Coding Remote.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.node.json --noEmit",
+    "build": "vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4"
+  }
+}

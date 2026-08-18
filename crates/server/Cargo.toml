@@ -20,11 +20,8 @@ clap.workspace = true
 config.workspace = true
 keyboard-types.workspace = true
 local-ip-address.workspace = true
-qrcode.workspace = true
 serde.workspace = true
 specta.workspace = true
-# Enables serde metadata lowering for `#[derive(Type)]` on this Specta release line.
-specta-macros.workspace = true
 specta-serde.workspace = true
 specta-typescript.workspace = true
 thiserror.workspace = true
