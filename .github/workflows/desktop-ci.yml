@@ -26,6 +26,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
+      - run: pnpm run build:web
       - run: cargo test --workspace
       - name: Build desktop bundle
         run: pnpm run build:desktop
